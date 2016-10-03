@@ -40,22 +40,19 @@ class Customer:
         self.number = number 
         self.errands = errands
         self.desperado = False
-        if random.random() < 0.5: #Sannolikhet för desperado = 1/1000
+        if random.random() < 0.001: #Sannolikhet för desperado = 1/1000
             #TODO
             self.desperado = True
-            print ("DESPERADOOOOO HEELP")
 
     def statusEnter(self):
         print(u"Kl ", clock.tellTime(),)
     def statusLeave(self):
         print(u"Kl ", clock.tellTime(), "går kund ", self.number, "och kund ",)
 
-def arrive(clock, probability):
+def arrive(probability):
     arrive = False
     if random.random() < probability: #random returnerar värde mellan 1 och 0, sannolikheten att det är under 0.2 är 20%
         arrive = True
-    if clock >= 1080:
-        arrive = False
     return arrive #booleska värden 1/0
 
 def errands(): #returnerar antalet ärenden, 50% return 1, 25% return 2, etc.
@@ -65,61 +62,26 @@ def errands(): #returnerar antalet ärenden, 50% return 1, 25% return 2, etc.
         c = random.randrange(0,2) #50% sannolikhet att c blir 1 eller 0 vilket gör att sannolikheten halveras varje gång whileslingan körs
         errands += 2 #2 == 1 ärende, förenklar när ett ärende tar 2 min (2 iterationer) i while i main()
     return errands
+def desperado():
+    desperado = False
+    if random.random() < 0.001:
+        desperado = True
+    return desperado
 
 def mrsFranco():
     return
 
-#def main():
-#    clock = Time(540) #skapa objekt från konstruktorn "Time" och ställ tiden till 09.00
-#    queue = []
-#    customerNumber = 0
-#    workerTime = 2
-#    wait = 0
-#    while clock.counter <  1200 or len(queue) > 0: #Betjäna kunder så länge klockan är mindre än 18.00 eller om det finns kunder kvar
-        
-#        if arrive(clock.counter) is True: #Om kund kommer in genom dörren
-#            customer = Customer(customerNumber,errands()) #skapa kund med könummer och antal ärenden
-#            customerNumber += 1
-
-#            if len(queue) is 0:
-#                print('Kl',clock.tellTime(),'kommer kund',customer.number,'in och blir genast betjänad')
-#            else:
-#                print('Kl',clock.tellTime(),'kommer kund',customer.number,'in och ställer sig i kön som nr',len(queue)+1)
-
-#            queue.append(customer) #Om kund kommer in 
-
-#        if len(queue) > 0:
-#            if workerTime == 0:
-#                queue[0].errands -= 1
-#                workerTime = 2
-#            if queue[0].errands == 0:
-#                if len(queue) > 1:
-#                    print('Kl',clock.tellTime(),'går kund',queue[0].number,'och kund',queue[1].number,'blir betjänad')
-#                else:
-#                    print('Kl',clock.tellTime(),'går kund',queue[0].number)
-#                queue.pop(0)
-#            workerTime -= 1
-
-#        if len(queue) > 1:
-#            wait += 1
-#        clock.advanceTime()
-
-#        if clock.counter == 1080: #Om klockan är 18.00
-#            print('Kl',clock.tellTime(),'stängs dörren')
-            
-#    print('STATISTIK:',customerNumber,'kunder, kundväntetid', wait, 'minuter =',int((wait*60)/customerNumber),'s/kund')
-
-def printMessage(message ,currentTime, customerNumber=0, queueNumber=0):
+def printMessage(message, currentTime, customerNumber=0, queueNumber=0):
     if message == 0: 
         print('Kl', currentTime, 'kommer kund', customerNumber, 'in och blir genast betjänad')
     elif message == 1:
         print('Kl', currentTime, 'kommer kund', customerNumber, 'in och ställer sig i kön som nr', queueNumber)
     elif message == 2:
-        print('Kl',currentTime,'går kund', customerNumber,'och kund', queueNumber, 'blir betjänad')
+        print('Kl', currentTime,'går kund', customerNumber,'och kund', queueNumber, 'blir betjänad')
     elif message == 3:
-        print('Kl',currentTime,'går kund', customerNumber)
+        print('Kl', currentTime,'går kund', customerNumber)
     elif message == 4:
-        print('Kl',currentTime,'stängs dörren')
+        print('Kl', currentTime,'stängs dörren')
     else:
         print("nothing")
     return
@@ -135,43 +97,39 @@ def inputTime(instruction):
     errorcode2 = "Du matade inte in någonting!"
     errorcode3 = "Fel format!"
     errorcode4 = "Angiven tid existerar inte!"
-    errorcode5 = ""
 
     while validInput == False:
         textInput = input(instruction)
         length = len(textInput)
 
-        if length == 5:
-            textInput = textInput[:2] + ":" + textInput[3:] #Slicing away any delimiter, standardizing it
-      
-        #timeHours, timeMinutes = map(int, textInput.split(":")) #Delar värdena och samtidigt konverterar till int
+        if 0 < length < 5: #Någon av dessa format H, HH, HHMM, gissa output och fråga
+            if length == 1: #konvertera H -> 0H:00
+                textInput = "0" + textInput[0] + ":00"
 
-        if 0 < length < 5: #H, HH, HHMM, fråga om input korrekt
-            try: 
-                #H -> HH:MM
-                if length == 1: 
-                    textInput = "0" + textInput[0] + ":00"
+            elif length == 2: #konvertera HH -> HH:00
+                textInput = textInput[:2] + ":00"
 
-                #HH -> HH:MM
-                elif length == 2: 
-                    textInput = textInput[:2] + ":00"
+            elif length == 3: #Ologisk input
+                print(errorcode3, errorcode1)
 
-                #Ologisk input
-                elif length == 3: 
-                    print(errorcode3, errorcode1)
-
-                #HHMM -> HH:MM
-                elif length == 4: 
-                    textInput = textInput[:2] + ":" + textInput[2:]
+            elif length == 4: #konvertera HHMM -> HH:MM
+                textInput = textInput[:2] + ":" + textInput[2:]
 
         elif length == 0: #om längd på input = 0
             print (errorcode2, errorcode1)
 
+        elif length == 5:
+            textInput = textInput[:2] + ":" + textInput[3:] #Slicing away any delimiter, standardizing it
+
         try:
             timeHours, timeMinutes = map(int, textInput.split(":")) #Delar värdena och samtidigt konverterar till int
+            if 0 <= timeHours <= 24 and 0 <= timeMinutes < 60:
+                validInput = True
+            else:
+                print(errorcode4)
         except ValueError:
                 print(errorcode3, errorcode1)
-
+                
     decodedTime = (timeHours*60) + timeMinutes
     return decodedTime
 def validate(data):
@@ -183,22 +141,30 @@ def validate(data):
             return False
         else:
             print("Felaktigt svar, endast J och N är giltiga")
+
+class PostOffice(object):
+    def __init__(self, *args):
+        self.queue = collections.deque()
+        
 def main():
 
-    clock = Time(540) #skapa objekt från konstruktorn "Time" och ställ tiden till 09:00, (9*60 = 540)
+    while True:
+        officeOpen = inputTime("Mata in när postkontoret öppnar: ")
+        officeClose = inputTime("Mata in när postkontoret stänger: ")
+        if officeOpen < officeClose:
+            break
+        else:
+            print("Butiken måste öppna innan den stänger")
+    arriveProb = float(input("Mata in sannolikheten för att kund kommer in en given minut"))
+
+    clock = Time(officeOpen) #skapa objekt från konstruktorn "Time" och ställ tiden till vad som angavs av användaren
     queue =  collections.deque()
     customerNumber = 0
     wait = 0
-
-    officeOpen  = inputTime("Mata in när postkontoret öppnar: ")
-    print (officeOpen)
-
-    officeClose  = input("Mata in när postkontoret stänger: ")
-    print (officeClose)
-
-    while clock.counter <  1080 or len(queue) > 0: #Betjäna kunder så länge klockan är mindre än 18:00 (18*60 = 1080) eller om det finns kunder kvar
+    postOffice = PostOffice()
+    while clock.counter < officeClose or len(queue) > 0: #Betjäna kunder så länge det är öppet eller om det finns kunder kvar
         
-        if arrive(clock.counter, 0.2) is True:                   #Om kund kommer in genom dörren
+        if arrive(arriveProb):                   #Om kund kommer in genom dörren
             customerNumber += 1   
             customer = Customer(customerNumber, errands())  #skapa kund med könummer och antal ärenden
             queue.append(customer)                          #lägg till kund i kö
@@ -208,12 +174,12 @@ def main():
             else:
                 printMessage(1,clock.tellTime(), customer.number, len(queue))
             
-        if len(queue) > 0: #om kö finns
+        if len(queue) > 0: #om kö ej tom
 
-            if queue[0].errands > 0: #Om det finns ärenden kvar att utföra
+            if queue[0].errands > 0: #Om kund har ärenden kvar att utföra
                 queue[0].errands -= 1
 
-            if queue[0].errands == 0: #om färdigbehandlad
+            if queue[0].errands == 0: #om kund är färdigbehandlad
                 if len(queue) > 1:
                     printMessage(2, clock.tellTime(), queue[0].number, queue[1].number)
                 else:
@@ -221,41 +187,70 @@ def main():
 
                 queue.popleft() #Ta bort betjänad kund från kö
 
-        if len(queue) > 1:
+        if len(queue) > 1: #om kunder står i kö, lägg till väntetid.
             wait += 1
 
         clock.advanceTime()
 
-        if clock.counter == 1080: #Om klockan är 18.00
-
+        if clock.counter == officeClose: #Om det är stängninstid:
             printMessage(4, clock.tellTime())
             
     print('STATISTIK:',customerNumber,'kunder, kundväntetid', wait, 'minuter =',int((wait*60)/customerNumber),'s/kund')
     
 def testErrands():
     print('\nTEST av errands()\nSannolikheter för antal ärenden:')
-    stat = 500*[0]
-    for n in range(100000):
-        number = int(errands() / 2)
+    stat = [0]
+    state = " PASS "
+    testLength = 100000
+    progress = 0
+    percent = 0
+    for n in range(testLength):
+        if n == progress:
+            print("progress: ", round(n/(testLength/100)),"%")
+            percent += 1
+            progress += testLength/10
+        number = int(errands()/2)
+        while len(stat) <= number+1:
+                stat.append(0)
         stat[number] += 1
     print('Antal Sannolikhet Förekomst')
+    previousNumber = 0
+    currentNumber = 0
     for i,n in enumerate(stat):
-        if n > 0:
+        if i > 0:
             print('',str(i).zfill(2),'   ',str(round(100*(n/sum(stat)),2)).ljust(5,'0'),'%   ',str(n).rjust(5,' '))
-
-def testArrive():
+            if i == 1:
+                previousNumber = round(100*(n/sum(stat)))
+            else:
+                currentNumber = round(100*(n/sum(stat)))
+                if currentNumber-1 <= round(previousNumber/2) <= currentNumber+1:
+                    None
+                else:
+                    state = " FAIL "
+                previousNumber = currentNumber
+    print('errands() function test: '+state)
+def testArrive(probability):
     print('\nTEST av arrive()\nSannolikhet för kundinträde:')
     stat = 2*[0]
+    
     for n in range(1000000):
-        state = arrive(500, 0.3)
+        state = arrive(probability)
         if state is True:
             stat[0] += 1
         else:
             stat[1] += 1
-    print('True:',stat[0],'\nFalse:',stat[1],'\nSannolikhet för att True ges:',round(100*(stat[0]/sum(stat)),2),'%')
+
+    calculatedProbabilty = 100*(stat[0]/sum(stat))
+
+    print('True:',stat[0],'\nFalse:',stat[1],'\nSannolikhet för att True ges:',round(calculatedProbabilty,2),'%')
+    if(probability*100 == round(calculatedProbabilty)):
+        state = " PASS "
+    else:
+        state = " FAIL "
+    print('arrive() function test: '+state)
 
 #Huvudprogram
-main()
+#main()
 testErrands()
-testArrive()
+testArrive(0.2)
 # 
