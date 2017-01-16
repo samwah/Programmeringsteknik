@@ -7,19 +7,21 @@ import collections
 import re #regex, regular expressions
 
 class Settings:
-    def __init__ (self, pEnter, open, close, pRobber):
-        self.pEnter = pEnter
-        self.pRobber = pRobber
+    """Initial settings for program"""
+    def __init__(self, p_enter, store_open, store_close, p_robber):
+        self.p_enter = p_enter
+        self.p_robber = p_robber
         #self.
-        self.open = open
-        self.close = close
+        self.store_open = store_open
+        self.store_close = store_close
 
 #Tidsklass
 class Time:
-    def __init__ (self,startTime):
+    def __init__(self, startTime):
         self.counter = startTime #Hur många minuter som passerat från 00:00
 
-    def tellTime(self): #Denna metod returnerar tiden i standardformat 00.00
+    def tell_time(self):
+        """Denna metod returnerar tiden i standardformat 00.00"""
         timeHour, timeMinute = divmod(self.counter, 60) #omvandla med modulo till timmar, (hela, rest) (timmar, minuter)
 
         if timeMinute < 10: #lägg till 0 om ental, alltså "5" blir "05"
@@ -45,9 +47,9 @@ class Customer:
             self.desperado = True
 
     def statusEnter(self):
-        print(u"Kl ", clock.tellTime(),)
+        print(u"Kl ", clock.tell_time(),)
     def statusLeave(self):
-        print(u"Kl ", clock.tellTime(), "går kund ", self.number, "och kund ",)
+        print(u"Kl ", clock.tell_time(), "går kund ", self.number, "och kund ",)
 
 def arrive(probability):
     arrive = False
@@ -114,9 +116,8 @@ def inputTime(instruction):
 
             elif length == 4: #konvertera HHMM -> HH:MM
                 textInput = textInput[:2] + ":" + textInput[2:]
-
-        elif length == 0: #om längd på input = 0
-            print (errorcode2, errorcode1)
+        #elif length == 0: #im längd på input = 0
+            #print(errorcode2, errorcode1)
 
         elif length == 5:
             textInput = textInput[:2] + ":" + textInput[3:] #Slicing away any delimiter, standardizing it
@@ -128,8 +129,8 @@ def inputTime(instruction):
             else:
                 print(errorcode4)
         except ValueError:
-                print(errorcode3, errorcode1)
-                
+            print(errorcode3, errorcode1)
+
     decodedTime = (timeHours*60) + timeMinutes
     return decodedTime
 def validate(data):
@@ -145,7 +146,7 @@ def validate(data):
 class PostOffice(object):
     def __init__(self, *args):
         self.queue = collections.deque()
-        
+
 def main():
 
     while True:
@@ -158,21 +159,21 @@ def main():
     arriveProb = float(input("Mata in sannolikheten för att kund kommer in en given minut"))
 
     clock = Time(officeOpen) #skapa objekt från konstruktorn "Time" och ställ tiden till vad som angavs av användaren
-    queue =  collections.deque()
+    queue = collections.deque()
     customerNumber = 0
     wait = 0
     postOffice = PostOffice()
     while clock.counter < officeClose or len(queue) > 0: #Betjäna kunder så länge det är öppet eller om det finns kunder kvar
-        
+
         if arrive(arriveProb):                   #Om kund kommer in genom dörren
-            customerNumber += 1   
-            customer = Customer(customerNumber, errands())  #skapa kund med könummer och antal ärenden
+            customerNumber += 1
+            customer = Customer(customerNumber, errands()) #skapa kund med könummer och antal ärenden
             queue.append(customer)                          #lägg till kund i kö
 
             if len(queue) == 1:
-                printMessage(0,clock.tellTime(), customer.number)
+                printMessage(0, clock.tell_time(), customer.number)
             else:
-                printMessage(1,clock.tellTime(), customer.number, len(queue))
+                printMessage(1, clock.tell_time(), customer.number, len(queue))
             
         if len(queue) > 0: #om kö ej tom
 
@@ -181,9 +182,9 @@ def main():
 
             if queue[0].errands == 0: #om kund är färdigbehandlad
                 if len(queue) > 1:
-                    printMessage(2, clock.tellTime(), queue[0].number, queue[1].number)
+                    printMessage(2, clock.tell_time(), queue[0].number, queue[1].number)
                 else:
-                    printMessage(3, clock.tellTime(), queue[0].number)
+                    printMessage(3, clock.tell_time(), queue[0].number)
 
                 queue.popleft() #Ta bort betjänad kund från kö
 
@@ -193,9 +194,9 @@ def main():
         clock.advanceTime()
 
         if clock.counter == officeClose: #Om det är stängninstid:
-            printMessage(4, clock.tellTime())
-            
-    print('STATISTIK:',customerNumber,'kunder, kundväntetid', wait, 'minuter =',int((wait*60)/customerNumber),'s/kund')
+            printMessage(4, clock.tell_time())
+
+    print('STATISTIK:', customerNumber, 'kunder, kundväntetid', wait, 'minuter =', int((wait*60)/customerNumber), 's/kund')
     
 def testErrands():
     print('\nTEST av errands()\nSannolikheter för antal ärenden:')
@@ -253,4 +254,4 @@ def testArrive(probability):
 #main()
 testErrands()
 testArrive(0.2)
-# 
+#
